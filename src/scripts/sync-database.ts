@@ -13,10 +13,10 @@ export async function syncDatabase() {
     try {
         if (answer == "Y") {
             console.log("Sincronizando base de datos...");
-            await setupDatabase();
             await sequelize.sync({
                 force: true
             })
+            await setupDatabase();
             console.log("Sincronización exitosa");
         }
 
@@ -28,4 +28,4 @@ export async function syncDatabase() {
     }
 }
 
-await syncDatabase();
+syncDatabase();

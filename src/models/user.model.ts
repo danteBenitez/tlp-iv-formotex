@@ -1,39 +1,34 @@
-import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { sequelize } from "../database/connection.js";
+import { Optional } from "sequelize";
+import { AutoIncrement, BelongsToMany, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { IUser } from "../interfaces/user.interface.js";
+import Role from "./role.model.js";
+import UserRole from "./user-roles.model.js";
 
-export class User extends Model<
-    InferAttributes<User>,
-    InferCreationAttributes<User>
-> {
-    declare user_id: CreationOptional<number>;
-    declare username: string;
-    declare password: string;
-    declare email: string;
+interface UserCreationAttributes extends Optional<IUser, 'userId'> { }
+
+@Table({
+    timestamps: true,
+    paranoid: true,
+    tableName: 'users'
+})
+export default class User extends Model<IUser, UserCreationAttributes> {
+
+    @PrimaryKey
+    @AutoIncrement
+    @Column({
+        field: "user_id"
+    })
+    userId: number;
+
+    @Column
+    username: string;
+
+    @Column
+    password: string;
+
+    @Column
+    email: string;
+
+    @BelongsToMany(() => Role, () => UserRole)
+    roles: Role[]
 }
-
-User.init(
-    {
-        user_id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
-        },
-        username: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        password: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        email: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-    },
-    {
-        timestamps: true,
-        paranoid: true,
-        sequelize
-    }
-);

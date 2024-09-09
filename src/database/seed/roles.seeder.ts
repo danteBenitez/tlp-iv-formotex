@@ -1,13 +1,13 @@
 import { ROLES } from "../../consts/roles.js";
-import { Role } from "../../models/role.model.js";
+import Role from "../../models/role.model.js";
 
 const ROLES_TO_INSERT = [
     {
-        role_id: 1,
+        roleId: 1,
         name: ROLES.ADMIN,
     },
     {
-        role_id: 2,
+        roleId: 2,
         name: ROLES.USER,
     }
 ];

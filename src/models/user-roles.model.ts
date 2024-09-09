@@ -1,37 +1,29 @@
-import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { sequelize } from "../database/connection.js";
-import { Role } from "./role.model.js";
-import { User } from "./user.model.js";
+import { Optional } from "sequelize";
+import { AutoIncrement, Column, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { IUserRole } from "../interfaces/user-role.interface.js";
+import Role from "./role.model.js";
+import User from "./user.model.js";
 
-export class UserRole extends Model<InferAttributes<UserRole>, InferCreationAttributes<UserRole>> {
-    declare user_role_id: CreationOptional<number>;
-    declare role_id: number;
-    declare user_id: number;
+interface UserRoleCreationAttributes extends Optional<IUserRole, "userRoleId"> { }
+
+@Table({
+    timestamps: true,
+    paranoid: true,
+    tableName: 'user_roles',
+    underscored: true
+})
+export default class UserRole extends Model<IUserRole, UserRoleCreationAttributes> {
+
+    @PrimaryKey
+    @AutoIncrement
+    @Column
+    userRoleId: number;
+
+    @Column
+    @ForeignKey(() => Role)
+    roleId: number
+
+    @Column
+    @ForeignKey(() => User)
+    userId: number
 }
-
-UserRole.init({
-    user_role_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    role_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: Role,
-            key: "role_id"
-        }
-    },
-    user_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: User,
-            key: "user_id"
-        }
-    }
-}, {
-    sequelize
-});
