@@ -30,7 +30,7 @@ export class EquipmentTypeController {
         }
 
         try {
-            const type = await this.equipmentTypeService.findById(data.params.equipmentId);
+            const type = await this.equipmentTypeService.findById(data.params.equipmentTypeId);
 
             return res.status(200).json(type);
 
@@ -80,7 +80,7 @@ export class EquipmentTypeController {
         }
 
         try {
-            const type = await this.equipmentTypeService.update(data.params.equipmentId, data.body);
+            const type = await this.equipmentTypeService.update(data.params.equipmentTypeId, data.body);
 
             return res.status(200).json(type);
 
@@ -105,7 +105,7 @@ export class EquipmentTypeController {
         }
 
         try {
-            const type = await this.equipmentTypeService.delete(data.params.equipmentId);
+            const type = await this.equipmentTypeService.delete(data.params.equipmentTypeId);
 
             return res.status(200).json(type);
 

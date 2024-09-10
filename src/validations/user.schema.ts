@@ -37,15 +37,17 @@ export const createUserSchema = z.object({
 
 export const userIdSchema = z.object({
     params: z.object({
-        userId: z.number({ message: "ID de usuario inválida" })
+        userId: z.number({ coerce: true, message: "ID de usuario inválida" })
     })
 });
 
 export type CreateUserData = z.infer<typeof createUserSchema>;
 
-export const updateUserSchema = createUserSchema.partial();
+export const updateUserSchema = z.intersection(z.object({
+    body: createUserSchema.partial(),
+}), userIdSchema);
 
-export type UpdateUserData = z.infer<typeof updateUserSchema>;
+export type UpdateUserData = z.infer<typeof updateUserSchema>["body"];
 
 export const signInSchema = z.object({
     username: z.string(),
