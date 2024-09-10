@@ -36,7 +36,7 @@ export class EquipmentTypeController {
 
         } catch (err) {
             if (err instanceof EquipmentTypeNotFoundError) {
-                return res.status(400).json({
+                return res.status(404).json({
                     message: err.message
                 });
             }
