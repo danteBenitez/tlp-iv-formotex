@@ -17,9 +17,9 @@ export const createUserSchema = z.object({
     }).email({
         message: "Correo electrónico no es válido"
     }),
-    roles: z.enum(ALLOWED_ROLES, {
+    roles: z.array(z.enum(ALLOWED_ROLES, {
         message: "El rol debe ser uno de " + allowedRolesMessage
-    }),
+    })),
     password: z.string()
         .refine((password) => /[A-Z]/.test(password), {
             message: "La contraseña debe tener al menos una mayúscula",
@@ -41,9 +41,13 @@ export const userIdSchema = z.object({
 
 export type CreateUserData = z.infer<typeof createUserSchema>;
 
-export type UpdateUserData = Partial<CreateUserData>;
+export const updateUserSchema = createUserSchema.partial();
 
-export type SignInData = {
-    username: string,
-    password: string
-};
+export type UpdateUserData = z.infer<typeof updateUserSchema>;
+
+export const signInSchema = z.object({
+    username: z.string(),
+    password: z.string()
+});
+
+export type SignInData = z.infer<typeof signInSchema>;
