@@ -1,5 +1,5 @@
 import { Optional } from "sequelize";
-import { AutoIncrement, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from "sequelize-typescript";
 import { IEquipmentType } from "../interfaces/equipment-type.interface";
 
 interface EquipmentTypeCreationAttributes extends Optional<IEquipmentType, "equipmentTypeId"> { }
@@ -20,6 +20,6 @@ export default class EquipmentType extends Model<IEquipmentType, EquipmentTypeCr
     @Column
     declare name: string
 
-    @Column
+    @Column(DataType.TEXT)
     declare description: string
 }
