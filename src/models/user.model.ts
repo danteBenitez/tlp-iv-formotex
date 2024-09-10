@@ -18,17 +18,17 @@ export default class User extends Model<IUser, UserCreationAttributes> {
     @Column({
         field: "user_id"
     })
-    userId: number;
+    declare userId: number;
 
     @Column
-    username: string;
+    declare username: string;
 
     @Column
-    password: string;
+    declare password: string;
 
     @Column
-    email: string;
+    declare email: string;
 
     @BelongsToMany(() => Role, () => UserRole)
-    roles: Role[]
+    declare roles: Role[]
 }

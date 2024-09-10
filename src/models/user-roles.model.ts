@@ -17,13 +17,13 @@ export default class UserRole extends Model<IUserRole, UserRoleCreationAttribute
     @PrimaryKey
     @AutoIncrement
     @Column
-    userRoleId: number;
+    declare userRoleId: number;
 
     @Column
     @ForeignKey(() => Role)
-    roleId: number
+    declare roleId: number
 
     @Column
     @ForeignKey(() => User)
-    userId: number
+    declare userId: number
 }

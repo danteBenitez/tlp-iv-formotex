@@ -17,11 +17,11 @@ export default class Role extends Model<IRole, RoleCreationAttributes> {
     @PrimaryKey
     @AutoIncrement
     @Column
-    roleId: number;
+    declare roleId: number;
 
     @Column
-    name: string;
+    declare name: string;
 
     @BelongsToMany(() => User, () => UserRole)
-    users: User[]
+    declare users: User[]
 }
