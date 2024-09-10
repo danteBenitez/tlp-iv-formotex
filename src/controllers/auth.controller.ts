@@ -7,7 +7,7 @@ import {
     UsersService
 } from "../services/user.service.js";
 import { validateRequest } from "../utils/validate-schema.js";
-import { createUserSchema } from "../validations/user.schema.js";
+import { createUserSchema, signInSchema } from "../validations/user.schema.js";
 
 export class AuthController {
     constructor(
@@ -16,11 +16,14 @@ export class AuthController {
 
 
     async signIn(req: Request, res: Response) {
-        const { username, password } = req.body;
+        const { data, success, error } = await validateRequest(req, signInSchema);
+        if (!success) {
+            return res.status(400).json(error);
+        }
         try {
             const { user, token } = await this.userService.signIn({
-                username,
-                password,
+                username: data.username,
+                password: data.password,
             });
 
             res.status(200).json({
