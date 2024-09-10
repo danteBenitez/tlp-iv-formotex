@@ -2,6 +2,8 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import authRouter from "./routes/auth.routes.js";
+
 type Callback = () => Promise<void>;
 
 export class Server {
@@ -26,6 +28,7 @@ export class Server {
     }
 
     protected routes() {
+        this.app.use('/auth', authRouter);
     }
 
     protected addParsers() {
