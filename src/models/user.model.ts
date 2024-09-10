@@ -9,7 +9,8 @@ interface UserCreationAttributes extends Optional<IUser, 'userId'> { }
 @Table({
     timestamps: true,
     paranoid: true,
-    tableName: 'users'
+    tableName: 'users',
+    underscored: true
 })
 export default class User extends Model<IUser, UserCreationAttributes> {
 
