@@ -36,7 +36,9 @@ export const createUserSchema = z.object({
 });
 
 export const userIdSchema = z.object({
-    userId: z.number({ message: "ID de usuario inválida" })
+    params: z.object({
+        userId: z.number({ message: "ID de usuario inválida" })
+    })
 });
 
 export type CreateUserData = z.infer<typeof createUserSchema>;

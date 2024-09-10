@@ -24,11 +24,11 @@ export class UserController {
     }
 
     async findById(req: Request, res: Response) {
-        const { data, error, success } = await validateRequest(req, userIdSchema, "params")
+        const { data, error, success } = await validateRequest(req, userIdSchema);
         if (!success) {
             return res.status(400).json(error);
         }
-        const user = await this.userService.findById(data.userId);
+        const user = await this.userService.findById(data.params.userId);
 
         if (!user) {
             return res.status(404).json({
@@ -42,11 +42,11 @@ export class UserController {
     }
 
     async deleteUserById(req: Request, res: Response) {
-        const { data, error, success } = await validateRequest(req, userIdSchema, "params")
+        const { data, error, success } = await validateRequest(req, userIdSchema)
         if (!success) {
             return res.status(400).json(error);
         }
-        const deleted = await this.userService.delete(data.userId);
+        const deleted = await this.userService.delete(data.params.userId);
 
         if (!deleted) {
             return res.status(404).json({
@@ -62,7 +62,7 @@ export class UserController {
     async updateProfile(req: Request, res: Response) {
         const user = req.user;
         try {
-            const updated = await this.userService.update(user.user_id, req.body);
+            const updated = await this.userService.update(user.userId, req.body);
 
             const { password: _, ...withoutPassword } = updated.toJSON();
 
@@ -89,13 +89,13 @@ export class UserController {
     }
 
     async updateUserById(req: Request, res: Response) {
-        const { data, error, success } = await validateRequest(req, userIdSchema, "params")
+        const { data, error, success } = await validateRequest(req, userIdSchema)
         if (!success) {
             return res.status(400).json(error);
         }
 
         try {
-            const updated = await this.userService.update(data.userId, req.body);
+            const updated = await this.userService.update(data.params.userId, req.body);
 
             const { password: _, ...withoutPassword } = updated.toJSON();
 

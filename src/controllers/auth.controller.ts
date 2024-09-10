@@ -6,7 +6,7 @@ import {
     InvalidSignInError,
     UsersService
 } from "../services/user.service.js";
-import { validateRequest } from "../utils/validate-schema.js";
+import { validateRequestBody } from "../utils/validate-schema.js";
 import { createUserSchema, signInSchema } from "../validations/user.schema.js";
 
 export class AuthController {
@@ -16,7 +16,7 @@ export class AuthController {
 
 
     async signIn(req: Request, res: Response) {
-        const { data, success, error } = await validateRequest(req, signInSchema);
+        const { data, success, error } = await validateRequestBody(req, signInSchema);
         if (!success) {
             return res.status(400).json(error);
         }
@@ -45,7 +45,7 @@ export class AuthController {
     }
 
     async signUp(req: Request, res: Response) {
-        const { data, success, error } = await validateRequest(req, createUserSchema);
+        const { data, success, error } = await validateRequestBody(req, createUserSchema);
         if (!success) {
             return res.status(400).json(error);
         }

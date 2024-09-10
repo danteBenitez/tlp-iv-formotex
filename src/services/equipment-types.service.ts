@@ -65,3 +65,5 @@ export class EquipmentTypeService {
         return affected;
     }
 }
+
+export const equipmentTypeService = new EquipmentTypeService(EquipmentType);

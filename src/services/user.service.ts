@@ -30,7 +30,7 @@ export class UsersService {
      */
     async createTokenFor(user: IUser) {
         return new Promise((resolve, reject) => {
-            jwt.sign({ user_id: user.userId }, config.getSecret(), (err: Error | null, data: string | undefined) => {
+            jwt.sign({ userId: user.userId }, config.getSecret(), (err: Error | null, data: string | undefined) => {
                 if (err) reject(err);
                 else resolve(data);
             });
@@ -261,7 +261,7 @@ export class UsersService {
             return false;
         }
 
-        return role.$has("users", user)
+        return role.$has("users", user.userId)
     }
 }
 
