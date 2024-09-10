@@ -11,6 +11,20 @@ export const createOrganizationSchema = z.object({
 
 export type CreateOrganizationData = z.infer<typeof createOrganizationSchema>;
 
-export const updateOrganizationSchema = createOrganizationSchema.partial();
+export const organizationIdSchema = z.object({
+    params: z.object({
+        organizationId: z.number({
+            message: "El ID de organización es requerido",
+            coerce: true
+        }).int({
+            message: "El ID de organización debe ser un entero"
+        })
+    })
+});
 
-export type UpdateOrganizationData = z.infer<typeof updateOrganizationSchema>;
+export const updateOrganizationSchema = z.intersection(z.object({
+    body: createOrganizationSchema.partial(),
+}), organizationIdSchema);
+
+
+export type UpdateOrganizationData = z.infer<typeof updateOrganizationSchema>["body"];

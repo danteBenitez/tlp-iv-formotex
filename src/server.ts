@@ -4,6 +4,7 @@ import morgan from "morgan";
 
 import authRouter from "./routes/auth.routes.js";
 import equipmentTypeRouter from "./routes/equipment-types.routes.js";
+import organizationRouter from "./routes/organization.routes.js";
 
 type Callback = () => Promise<void>;
 
@@ -31,6 +32,7 @@ export class Server {
     protected routes() {
         this.app.use('/auth', authRouter);
         this.app.use('/equipment', equipmentTypeRouter);
+        this.app.use('/organizations', organizationRouter);
     }
 
     protected addParsers() {
