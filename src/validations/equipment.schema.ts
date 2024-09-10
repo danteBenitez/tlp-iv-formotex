@@ -47,6 +47,18 @@ export const createEquipmentSchema = z.object({
 
 export type CreateEquipmentData = z.infer<typeof createEquipmentSchema>;
 
-export const updateEquipmentSchema = createEquipmentSchema.partial();
+export const equipmentIdSchema = z.object({
+    params: z.object({
+        equipmentId: z.number({
+            message: "El ID del equipo es requerido"
+        }).int({
+            message: "El ID del equipo debe ser un entero"
+        })
+    })
+})
 
-export type UpdateEquipmentData = z.infer<typeof updateEquipmentSchema>;
+export const updateEquipmentSchema = z.intersection(z.object({
+    body: createEquipmentSchema.partial(),
+}), equipmentIdSchema);
+
+export type UpdateEquipmentData = z.infer<typeof updateEquipmentSchema>["body"];
