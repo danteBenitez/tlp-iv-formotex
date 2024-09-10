@@ -2,7 +2,7 @@ import EquipmentType from "../models/equipment-type.model";
 import { CreateEquipmentTypeData } from "../validations/equipment-type.schema";
 import { UpdateEquipmentData } from "../validations/equipment.schema";
 
-export class EquipmentTypeNotFound extends Error { }
+export class EquipmentTypeNotFoundError extends Error { }
 export class ConflictingEquipmentTypeError extends Error { }
 
 export class EquipmentTypeService {
@@ -18,7 +18,7 @@ export class EquipmentTypeService {
     async findById(equipmentId: number) {
         const type = this.equipmentTypeModel.findByPk(equipmentId);
         if (!type) {
-            throw new EquipmentTypeNotFound("Tipo de equipamiento no encontrado");
+            throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
         }
         return type;
     }
@@ -44,7 +44,7 @@ export class EquipmentTypeService {
         const existing = await this.equipmentTypeModel.findByPk(typeId);
 
         if (!existing) {
-            throw new EquipmentTypeNotFound("Tipo de equipamiento no encontrado");
+            throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
         }
 
         existing.update(updateData);
@@ -59,7 +59,7 @@ export class EquipmentTypeService {
         });
 
         if (affected === 0) {
-            throw new EquipmentTypeNotFound("Tipo de equipamiento no encontrado");
+            throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
         }
 
         return affected;
