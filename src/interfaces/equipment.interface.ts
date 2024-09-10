@@ -4,9 +4,9 @@ export interface IEquipment {
     equipmentId: string,
     name: string,
     description: string,
-    series_number: string,
-    stock: number,
-    type: IEquipmentType,
+    serialNumber: number,
+    type?: IEquipmentType,
+    typeId: number,
     location: string,
     make: string,
 }
