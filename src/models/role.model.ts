@@ -1,6 +1,8 @@
 import { Optional } from "sequelize";
-import { AutoIncrement, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, BelongsToMany, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
 import { IRole } from "../interfaces/role.interface.js";
+import UserRole from "./user-roles.model.js";
+import User from "./user.model.js";
 
 interface RoleCreationAttributes extends Optional<IRole, "roleId"> { }
 
@@ -19,4 +21,7 @@ export default class Role extends Model<IRole, RoleCreationAttributes> {
 
     @Column
     name: string;
+
+    @BelongsToMany(() => User, () => UserRole)
+    users: User[]
 }
