@@ -16,7 +16,7 @@ export class EquipmentService {
 
     async findAll() {
         return this.equipmentModel.findAll({
-            include: [this.equipmentTypeModel, this.organizationModel]
+            include: [this.equipmentTypeModel]
         });
     }
 
@@ -34,7 +34,7 @@ export class EquipmentService {
 
     async create(equipmentData: CreateEquipmentData) {
 
-        const type = await this.organizationModel.findByPk(equipmentData.typeId);
+        const type = await this.equipmentTypeModel.findByPk(equipmentData.typeId);
 
         if (!type) {
             throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
