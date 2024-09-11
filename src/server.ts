@@ -1,3 +1,4 @@
+import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -49,6 +50,7 @@ export class Server {
 
         this.app.use(morgan("dev"));
         this.app.use(helmet());
+        this.app.use(cors());
     }
 
     /**
