@@ -7,13 +7,24 @@ import { encryptionService } from "../../services/encryption.service.js";
 export async function seedAdmin() {
     const adminRole = await Role.findOne({
         where: {
-            name: ROLES.ADMIN,
+            name: ROLES.ADMIN
         },
     });
+    const userRole = await Role.findOne({
+        where: {
+            name: ROLES.USER
+        }
+    })
 
     if (!adminRole) {
         throw new Error(
             "Rol de administrador faltante. Sincronice la base de datos"
+        );
+    }
+
+    if (!userRole) {
+        throw new Error(
+            "Rol de usuario faltante. Sincronice la base de datos"
         );
     }
 
@@ -33,7 +44,7 @@ export async function seedAdmin() {
             roles: []
         });
         // Y le añadimos el rol correspondiente.
-        user.$add("roles", adminRole);
+        await user.$set("roles", [adminRole, userRole]);
     }
 
     return adminUser;
