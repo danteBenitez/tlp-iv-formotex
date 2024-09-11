@@ -19,14 +19,6 @@ export const createEquipmentSchema = z.object({
     }).int({
         message: "El ID de tipo debe ser un entero"
     }),
-    acquiredAt: z.date({
-        coerce: true,
-        message: "La fecha de adquisición es requerida"
-    }).refine(date => {
-        return date.getTime() < (new Date).getTime();
-    }, {
-        message: "La fecha de adquisición no puede ser futura"
-    })
 });
 
 

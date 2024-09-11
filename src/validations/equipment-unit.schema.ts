@@ -29,6 +29,14 @@ export const createEquipmentUnitSchema = z.object({
         message: "El ID de equipamiento es requerido"
     }).int({
         message: "El ID de equipamiento debe ser un entero"
+    }),
+    acquiredAt: z.date({
+        coerce: true,
+        message: "La fecha de adquisición es requerida"
+    }).refine(date => {
+        return date.getTime() < (new Date).getTime();
+    }, {
+        message: "La fecha de adquisición no puede ser futura"
     })
 });
 
@@ -37,6 +45,7 @@ export type CreateEquipmentUnitData = z.infer<typeof createEquipmentUnitSchema>;
 export const equipmentUnitIdSchema = z.object({
     params: z.object({
         equipmentUnitId: z.number({
+            coerce: true,
             message: "El ID de unidad es requerido"
         }).int({
             message: "El ID de unidad debe ser un entero"
@@ -44,8 +53,8 @@ export const equipmentUnitIdSchema = z.object({
     })
 });
 
-export const updateEquipmentSchema = z.intersection(z.object({
+export const updateEquipmentUnitSchema = z.intersection(z.object({
     body: createEquipmentUnitSchema.partial()
 }), equipmentUnitIdSchema);
 
-export type UpdateEquipmentUnitData = z.infer<typeof updateEquipmentSchema>["body"];
+export type UpdateEquipmentUnitData = z.infer<typeof updateEquipmentUnitSchema>["body"];
