@@ -17,4 +17,6 @@ router.post('/', (req, res) => controller.create(req, res));
 
 router.patch('/:equipmentId', (req, res) => controller.update(req, res));
 
+router.delete('/:equipmentId', (req, res) => controller.delete(req, res));
+
 export default router;
