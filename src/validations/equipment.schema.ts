@@ -1,10 +1,19 @@
 import { z } from "zod";
+import { ALLOWED_EQUIPMENT_STATES } from "../consts/equipment-states";
+
+const listFormatter = new Intl.ListFormat("es", {
+    type: "disjunction"
+});
+const allowedEquipmentMessage = listFormatter.format(ALLOWED_EQUIPMENT_STATES);
 
 export const createEquipmentSchema = z.object({
     name: z.string().min(1, {
         message: "El nombre del equipamiento es requerido"
     }).max(255, {
         message: "El nombre del equipamiento no puede tener más de 255 caracteres"
+    }),
+    state: z.enum(ALLOWED_EQUIPMENT_STATES, {
+        message: "Los estados disponibles de un equipo son: " + allowedEquipmentMessage
     }),
     description: z.string().min(1, {
         message: "La descripción del equipamiento es requerida"
@@ -50,6 +59,7 @@ export type CreateEquipmentData = z.infer<typeof createEquipmentSchema>;
 export const equipmentIdSchema = z.object({
     params: z.object({
         equipmentId: z.number({
+            coerce: true,
             message: "El ID del equipo es requerido"
         }).int({
             message: "El ID del equipo debe ser un entero"
