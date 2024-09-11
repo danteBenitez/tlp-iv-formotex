@@ -2,6 +2,7 @@ import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
 import Organization from "../models/organization.model";
 import { CreateEquipmentUnitData, UpdateEquipmentUnitData } from "../validations/equipment-unit.schema";
+import { EquipmentNotFoundError } from "./equipment.service";
 import { OrganizationNotFoundError } from "./organization.service";
 
 export class EquipmentUnitNotFound extends Error { }
@@ -35,15 +36,21 @@ export class EquipmentUnitService {
     }
 
     async create(equipmentData: CreateEquipmentUnitData) {
-        const organization = await this.equipmentUnitModel.findByPk(equipmentData.organizationId);
+        const organization = await this.organizationModel.findByPk(equipmentData.organizationId);
 
         if (!organization) {
             throw new OrganizationNotFoundError("Organización no encontrada");
         }
 
-        const equipment = await this.equipmentUnitModel.create(equipmentData);
+        const equipment = await this.equipmentModel.findByPk(equipmentData.equipmentId);
 
-        return equipment;
+        if (!equipment) {
+            throw new EquipmentNotFoundError("Equipamiento no encontrado");
+        }
+
+        const unit = await this.equipmentUnitModel.create(equipmentData);
+
+        return unit;
     }
 
     async update(equipmentId: number, equipmentData: UpdateEquipmentUnitData) {
@@ -59,7 +66,16 @@ export class EquipmentUnitService {
             if (!organization) {
                 throw new OrganizationNotFoundError("Organización no encontrada");
             }
-            existing.$set("organization", organization);
+            await existing.$set("organization", organization);
+        }
+
+        if (equipmentData.equipmentId) {
+            const equipment = await this.equipmentUnitModel.findByPk(equipmentData.equipmentId);
+
+            if (!equipment) {
+                throw new EquipmentNotFoundError("Equipamiento no encontrado");
+            }
+            await existing.$set("equipment", equipment);
         }
 
         await existing.update(equipmentData);
@@ -67,13 +83,13 @@ export class EquipmentUnitService {
         return existing;
     }
 
-    async delete(equipmentId: number) {
-        const affected = await this.equipmentModel.destroy({
-            where: { equipmentId }
+    async delete(equipmentUnitId: number) {
+        const affected = await this.equipmentUnitModel.destroy({
+            where: { equipmentUnitId }
         });
 
         if (affected === 0) {
-            throw new EquipmentUnitNotFound("Equipamiento no encontrado");
+            throw new EquipmentUnitNotFound("Unidad no encontrada");
         }
 
         return affected;
