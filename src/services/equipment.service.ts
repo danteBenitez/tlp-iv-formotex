@@ -3,7 +3,6 @@ import Equipment from "../models/equipment.model";
 import Organization from "../models/organization.model";
 import { CreateEquipmentData, UpdateEquipmentData } from "../validations/equipment.schema";
 import { EquipmentTypeNotFoundError } from "./equipment-types.service";
-import { OrganizationNotFoundError } from "./organization.service";
 
 export class EquipmentNotFoundError extends Error { }
 
@@ -34,11 +33,6 @@ export class EquipmentService {
     }
 
     async create(equipmentData: CreateEquipmentData) {
-        const organization = await this.organizationModel.findByPk(equipmentData.organizationId);
-
-        if (!organization) {
-            throw new OrganizationNotFoundError("Organización no encontrada");
-        }
 
         const type = await this.organizationModel.findByPk(equipmentData.typeId);
 
@@ -56,15 +50,6 @@ export class EquipmentService {
 
         if (!existing) {
             throw new EquipmentNotFoundError("Equipamiento no encontrado");
-        }
-
-        if (equipmentData.organizationId) {
-            const organization = await this.organizationModel.findByPk(equipmentData.organizationId);
-
-            if (!organization) {
-                throw new OrganizationNotFoundError("Organización no encontrada");
-            }
-            existing.$set("organization", organization);
         }
 
         if (equipmentData.typeId) {
