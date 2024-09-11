@@ -8,16 +8,16 @@ const router = Router();
 
 const controller = new EquipmentTypeController(equipmentTypeService);
 
-router.get('/types', (req, res) => controller.findAll(req, res));
+router.get('/', (req, res) => controller.findAll(req, res));
 
-router.get('/types/:equipmentTypeId', (req, res) => controller.findOne(req, res));
+router.get('/:equipmentTypeId', (req, res) => controller.findOne(req, res));
 
 router.use([...roleMiddleware(ROLES.ADMIN)]);
 
-router.post('/types', (req, res) => controller.create(req, res));
+router.post('/', (req, res) => controller.create(req, res));
 
-router.patch('/types/:equipmentTypeId', (req, res) => controller.update(req, res));
+router.patch('/:equipmentTypeId', (req, res) => controller.update(req, res));
 
-router.delete('/types/:equipmentTypeId', (req, res) => controller.delete(req, res));
+router.delete('/:equipmentTypeId', (req, res) => controller.delete(req, res));
 
 export default router;
