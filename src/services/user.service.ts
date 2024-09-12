@@ -56,7 +56,8 @@ export class UsersService {
                 userId: z.number()
             }).parse(data);
             const user = await this.userModel.findOne({
-                where: { userId }
+                where: { userId },
+                include: [this.roleModel]
             });
             if (!user) {
                 return null;

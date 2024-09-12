@@ -50,7 +50,9 @@ export class Server {
 
         this.app.use(morgan("dev"));
         this.app.use(helmet());
-        this.app.use(cors());
+        this.app.use(cors({
+            origin: "*"
+        }));
     }
 
     /**

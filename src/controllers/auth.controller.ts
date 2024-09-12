@@ -78,4 +78,13 @@ export class AuthController {
         }
     }
 
+    getProfile(req: Request, res: Response) {
+        if (!req.user) {
+            return res.status(401).json({
+                message: "No estás autenticado"
+            });
+        }
+        res.status(200).json(req.user);
+    }
+
 }
