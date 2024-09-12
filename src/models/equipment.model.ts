@@ -1,7 +1,8 @@
 import { Optional } from "sequelize";
-import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, Model, PrimaryKey, Table } from "sequelize-typescript";
 import { IEquipment } from "../interfaces/equipment.interface.js";
 import EquipmentType from "./equipment-type.model.js";
+import EquipmentUnit from "./equipment-unit.model.js";
 
 interface EquipmentCreationAttributes extends Optional<IEquipment, "equipmentId"> { }
 
@@ -33,4 +34,6 @@ export default class Equipment extends Model<IEquipment, EquipmentCreationAttrib
     @Column
     declare make: string
 
+    @HasMany(() => EquipmentUnit)
+    declare equipmentUnits: EquipmentUnit[]
 }

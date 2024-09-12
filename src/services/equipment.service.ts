@@ -1,6 +1,6 @@
 import EquipmentType from "../models/equipment-type.model";
+import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
-import Organization from "../models/organization.model";
 import { CreateEquipmentData, UpdateEquipmentData } from "../validations/equipment.schema";
 import { EquipmentTypeNotFoundError } from "./equipment-types.service";
 
@@ -11,7 +11,7 @@ export class EquipmentService {
     constructor(
         private equipmentModel: typeof Equipment,
         private equipmentTypeModel: typeof EquipmentType,
-        private organizationModel: typeof Organization
+        private equipmentUnitModel: typeof EquipmentUnit
     ) { }
 
     async findAll() {
@@ -22,7 +22,8 @@ export class EquipmentService {
 
     async findById(equipmentId: number) {
         const equipment = await this.equipmentModel.findOne({
-            where: { equipmentId }
+            where: { equipmentId },
+            include: [this.equipmentTypeModel, this.equipmentUnitModel]
         });
 
         if (!equipment) {
@@ -53,7 +54,7 @@ export class EquipmentService {
         }
 
         if (equipmentData.typeId) {
-            const type = await this.organizationModel.findByPk(equipmentData.typeId);
+            const type = await this.equipmentTypeModel.findByPk(equipmentData.typeId);
 
             if (!type) {
                 throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
@@ -79,4 +80,4 @@ export class EquipmentService {
     }
 }
 
-export const equipmentService = new EquipmentService(Equipment, EquipmentType, Organization);
+export const equipmentService = new EquipmentService(Equipment, EquipmentType, EquipmentUnit);
