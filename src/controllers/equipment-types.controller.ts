@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ConflictingEquipmentTypeError, EquipmentTypeNotFoundError, EquipmentTypeService } from "../services/equipment-types.service";
+import { ConflictingEquipmentTypeError, EquipmentTypeNotFoundError, EquipmentTypeService, ExistingEquipmentWithType } from "../services/equipment-types.service";
 import { validateRequest, validateRequestBody } from "../utils/validate-schema";
 import { createEquipmentTypeSchema, equipmentTypeIdSchema, updateEquipmentTypeSchema } from "../validations/equipment-type.schema";
 
@@ -112,6 +112,11 @@ export class EquipmentTypeController {
         } catch (err) {
             if (err instanceof EquipmentTypeNotFoundError) {
                 return res.status(400).json({
+                    message: err.message
+                });
+            }
+            if (err instanceof ExistingEquipmentWithType) {
+                return res.status(409).json({
                     message: err.message
                 });
             }

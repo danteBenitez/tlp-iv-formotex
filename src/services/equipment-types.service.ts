@@ -1,14 +1,17 @@
 import EquipmentType from "../models/equipment-type.model";
+import Equipment from "../models/equipment.model";
 import { CreateEquipmentTypeData } from "../validations/equipment-type.schema";
 import { UpdateEquipmentData } from "../validations/equipment.schema";
 
 export class EquipmentTypeNotFoundError extends Error { }
 export class ConflictingEquipmentTypeError extends Error { }
+export class ExistingEquipmentWithType extends Error { }
 
 export class EquipmentTypeService {
 
     constructor(
-        private equipmentTypeModel: typeof EquipmentType
+        private equipmentTypeModel: typeof EquipmentType,
+        private equipmentModel: typeof Equipment
     ) { }
 
     async findAll() {
@@ -54,6 +57,16 @@ export class EquipmentTypeService {
 
 
     async delete(typeId: number) {
+        const equipment = await this.equipmentModel.findAll({
+            where: {
+                typeId
+            }
+        });
+
+        if (equipment.length !== 0) {
+            throw new ExistingEquipmentWithType("Existe equipamiento registrado con este tipo. NO es posible eliminarlo");
+        }
+
         const affected = await this.equipmentTypeModel.destroy({
             where: { equipmentTypeId: typeId }
         });
@@ -66,4 +79,4 @@ export class EquipmentTypeService {
     }
 }
 
-export const equipmentTypeService = new EquipmentTypeService(EquipmentType);
+export const equipmentTypeService = new EquipmentTypeService(EquipmentType, Equipment);
