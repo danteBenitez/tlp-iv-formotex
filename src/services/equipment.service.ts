@@ -43,6 +43,10 @@ export class EquipmentService {
 
         const equipment = await this.equipmentModel.create(equipmentData);
 
+        if (equipmentData.units) {
+            await this.equipmentUnitModel.bulkCreate(equipmentData.units.map(u => ({ ...u, equipmentId: equipment.equipmentId })));
+        }
+
         return equipment;
     }
 
@@ -63,6 +67,21 @@ export class EquipmentService {
         }
 
         await existing.update(equipmentData);
+
+        if (equipmentData.units) {
+            await Promise.all(equipmentData.units.map(async unit => {
+                if (unit.deleted) {
+                    await this.equipmentUnitModel.destroy({
+                        where: { equipmentUnitId: unit.equipmentUnitId }
+                    })
+                    return;
+                }
+                await this.equipmentUnitModel.upsert({
+                    ...unit,
+                    equipmentId: existing.equipmentId
+                });
+            }));
+        }
 
         return existing;
     }
