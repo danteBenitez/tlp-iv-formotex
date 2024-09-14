@@ -17,9 +17,6 @@ export const createUserSchema = z.object({
     }).email({
         message: "Correo electrónico no es válido"
     }),
-    roles: z.array(z.enum(ALLOWED_ROLES, {
-        message: "El rol debe ser uno de " + allowedRolesMessage
-    })),
     password: z.string()
         .refine((password) => /[A-Z]/.test(password), {
             message: "La contraseña debe tener al menos una mayúscula",
@@ -42,7 +39,7 @@ export const userIdSchema = z.object({
 });
 
 export const updateUserByAdminSchema = z.intersection(z.object({
-    body: createUserSchema.omit({ roles: true }).extend({
+    body: createUserSchema.extend({
         roles: z.array(z.enum(ADMIN_ALLOWED_ROLES, {
             message: "El rol debe ser uno de " + pluralFormatter.format(ADMIN_ALLOWED_ROLES)
         })),
