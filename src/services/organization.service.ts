@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import Organization from "../models/organization.model";
 import { CreateOrganizationData, UpdateOrganizationData } from "../validations/organization.schema";
 
@@ -50,7 +51,9 @@ export class OrganizationService {
         const other = await this.organizationModel.findOne({
             where: {
                 name: organizationData.name ?? "",
-                organizationId
+                organizationId: {
+                    [Op.not]: organizationId
+                }
             }
         });
 
