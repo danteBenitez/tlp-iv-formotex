@@ -121,23 +121,31 @@ export class UsersService {
             throw new ConflictingUserError("Nombre de usuario o email en uso");
         }
 
+
         if (userData.roles) {
-            console.log(userData.roles);
-            const roles = await this.roleModel.findAll({
-                where: { name: { [Op.or]: userData.roles } },
-            });
-            // Al usar $set, Sequelize borra las asocicaciones anteriores.
-            // Como la opción `paranoid: true` está activada,
-            // esta eliminación se hace seteando el campo `deletedAt`
-            // Sin embargo, esto hace que la operación falle en instancias
-            // donde ya se ha creado un registro con el mismo par (userId, roleId)
-            // puesto que el registro aún existe, sólo que con soft-delete.
-            // TODO: Cambiar esto, quitando al restricción de unicidad de UserRole
-            await this.userRoleModel.destroy({
-                force: true,
-                where: { userId, roleId: { [Op.or]: roles.map(r => r.roleId) } }
-            })
-            await found.$set("roles", roles);
+            if (userData.roles.length === 0) {
+                await this.userRoleModel.destroy({
+                    force: true,
+                    where: { userId }
+                });
+            } else {
+                const roles = await this.roleModel.findAll({
+                    where: { name: { [Op.or]: userData.roles } },
+                });
+                // Al usar $set, Sequelize borra las asocicaciones anteriores.
+                // Como la opción `paranoid: true` está activada,
+                // esta eliminación se hace seteando el campo `deletedAt`
+                // Sin embargo, esto hace que la operación falle en instancias
+                // donde ya se ha creado un registro con el mismo par (userId, roleId)
+                // puesto que el registro aún existe, sólo que con soft-delete.
+                // TODO: Cambiar esto, quitando al restricción de unicidad de UserRole
+                await this.userRoleModel.destroy({
+                    force: true,
+                    where: { userId, roleId: { [Op.or]: roles.map(r => r.roleId) } }
+                })
+                await found.$set("roles", roles);
+            }
+
         }
 
         await found.update({
@@ -171,23 +179,6 @@ export class UsersService {
      * Regístra un usuario con un rol de usuario 
      */
     async signUp(userData: CreateUserData) {
-        const roles = await this.roleModel.findAll({
-            where: {
-                name: {
-                    [Op.or]: userData.roles
-                }
-            },
-        });
-
-        if (roles.length === 0) {
-            console.warn(
-                `Error al encontrar los roles ${roles.join(
-                    ","
-                )}. El rol es requerido. Sincroniza la base de datos`
-            );
-            throw new InvalidRoleError("Rol no encontrado");
-        }
-
         const user = await this.userModel.findOne({
             where: {
                 [Op.or]: {
@@ -217,7 +208,6 @@ export class UsersService {
                 include: this.roleModel,
             }
         );
-        signedUp.$add("roles", roles);
 
         return {
             user: signedUp,
