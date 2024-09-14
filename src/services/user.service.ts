@@ -7,7 +7,7 @@ import { IUser } from "../interfaces/user.interface.js";
 import Role from "../models/role.model.js";
 import UserRole from "../models/user-roles.model.js";
 import User from "../models/user.model.js";
-import { CreateUserData, SignInData, UpdateUserData } from "../validations/user.schema.js";
+import { CreateUserData, SignInData, UpdateUserByAdmin } from "../validations/user.schema.js";
 import { EncryptionService, encryptionService } from "./encryption.service.js";
 
 export class ConflictingUserError extends Error { }
@@ -81,6 +81,7 @@ export class UsersService {
             attributes: {
                 exclude: ["password"],
             },
+            include: [this.roleModel]
         });
         return users;
     }
@@ -90,7 +91,7 @@ export class UsersService {
      */
     async findById(userId: number) {
         const user = await this.userModel.findByPk(userId, {
-            include: this.roleModel,
+            include: [this.roleModel],
         });
         return user;
     }
@@ -98,7 +99,7 @@ export class UsersService {
     /**
      * Actualiza un usuario con datos parciales.
      */
-    async update(userId: number, userData: UpdateUserData) {
+    async update(userId: number, userData: UpdateUserByAdmin) {
         const found = await this.userModel.findByPk(userId, {
             include: this.roleModel,
         });
@@ -125,6 +126,17 @@ export class UsersService {
             const roles = await this.roleModel.findAll({
                 where: { name: { [Op.or]: userData.roles } },
             });
+            // Al usar $set, Sequelize borra las asocicaciones anteriores.
+            // Como la opción `paranoid: true` está activada,
+            // esta eliminación se hace seteando el campo `deletedAt`
+            // Sin embargo, esto hace que la operación falle en instancias
+            // donde ya se ha creado un registro con el mismo par (userId, roleId)
+            // puesto que el registro aún existe, sólo que con soft-delete.
+            // TODO: Cambiar esto, quitando al restricción de unicidad de UserRole
+            await this.userRoleModel.destroy({
+                force: true,
+                where: { userId, roleId: { [Op.or]: roles.map(r => r.roleId) } }
+            })
             await found.$set("roles", roles);
         }
 

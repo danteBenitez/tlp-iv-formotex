@@ -8,6 +8,7 @@ import equipmentTypeRouter from "./routes/equipment-types.routes.js";
 import equipmentUnitRouter from "./routes/equipment-units.routes.js";
 import equipmentRouter from "./routes/equipment.routes.js";
 import organizationRouter from "./routes/organization.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 type Callback = () => Promise<void>;
 
@@ -34,6 +35,7 @@ export class Server {
 
     protected routes() {
         this.app.use('/auth', authRouter);
+        this.app.use('/users', userRouter);
         this.app.use('/equipment/types', equipmentTypeRouter);
         this.app.use('/equipment/units', equipmentUnitRouter);
         this.app.use('/equipment', equipmentRouter);

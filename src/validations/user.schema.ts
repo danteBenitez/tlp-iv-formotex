@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ALLOWED_ROLES } from "../consts/roles";
+import { ADMIN_ALLOWED_ROLES, ALLOWED_ROLES } from "../consts/roles";
 
 const pluralFormatter = new Intl.ListFormat("es", {
     type: "disjunction"
@@ -41,6 +41,14 @@ export const userIdSchema = z.object({
     })
 });
 
+export const updateUserByAdminSchema = z.intersection(z.object({
+    body: createUserSchema.omit({ roles: true }).extend({
+        roles: z.array(z.enum(ADMIN_ALLOWED_ROLES, {
+            message: "El rol debe ser uno de " + pluralFormatter.format(ADMIN_ALLOWED_ROLES)
+        })),
+    }).partial()
+}), userIdSchema);
+
 export type CreateUserData = z.infer<typeof createUserSchema>;
 
 export const updateUserSchema = z.intersection(z.object({
@@ -48,6 +56,8 @@ export const updateUserSchema = z.intersection(z.object({
 }), userIdSchema);
 
 export type UpdateUserData = z.infer<typeof updateUserSchema>["body"];
+
+export type UpdateUserByAdmin = z.infer<typeof updateUserByAdminSchema>["body"];
 
 export const signInSchema = z.object({
     username: z.string(),

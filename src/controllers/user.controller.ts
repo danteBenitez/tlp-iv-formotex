@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ConflictingUserError, UserNotFoundError, UsersService } from "../services/user.service";
 import { validateRequest } from "../utils/validate-schema";
-import { updateUserSchema, userIdSchema } from "../validations/user.schema";
+import { updateUserByAdminSchema, updateUserSchema, userIdSchema } from "../validations/user.schema";
 
 export class UserController {
     constructor(
@@ -94,13 +94,13 @@ export class UserController {
     }
 
     async updateUserById(req: Request, res: Response) {
-        const { data, error, success } = await validateRequest(req, userIdSchema)
+        const { data, error, success } = await validateRequest(req, updateUserByAdminSchema)
         if (!success) {
             return res.status(400).json(error);
         }
 
         try {
-            const updated = await this.userService.update(data.params.userId, req.body);
+            const updated = await this.userService.update(data.params.userId, data.body);
 
             const { password: _, ...withoutPassword } = updated.toJSON();
 
