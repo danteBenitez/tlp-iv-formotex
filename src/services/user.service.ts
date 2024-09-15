@@ -132,17 +132,6 @@ export class UsersService {
                 const roles = await this.roleModel.findAll({
                     where: { name: { [Op.or]: userData.roles } },
                 });
-                // Al usar $set, Sequelize borra las asocicaciones anteriores.
-                // Como la opción `paranoid: true` está activada,
-                // esta eliminación se hace seteando el campo `deletedAt`
-                // Sin embargo, esto hace que la operación falle en instancias
-                // donde ya se ha creado un registro con el mismo par (userId, roleId)
-                // puesto que el registro aún existe, sólo que con soft-delete.
-                // TODO: Cambiar esto, quitando al restricción de unicidad de UserRole
-                await this.userRoleModel.destroy({
-                    force: true,
-                    where: { userId, roleId: { [Op.or]: roles.map(r => r.roleId) } }
-                })
                 await found.$set("roles", roles);
             }
 

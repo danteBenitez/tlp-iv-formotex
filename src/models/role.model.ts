@@ -22,6 +22,11 @@ export default class Role extends Model<IRole, RoleCreationAttributes> {
     @Column
     declare name: string;
 
-    @BelongsToMany(() => User, () => UserRole)
+    @BelongsToMany(() => User, {
+        through: {
+            model: () => UserRole,
+            unique: false
+        }
+    })
     declare users: User[]
 }
