@@ -19,14 +19,14 @@ export class EquipmentService {
 
     async findAll() {
         return this.equipmentModel.findAll({
-            include: [this.equipmentTypeModel]
+            include: [this.equipmentTypeModel, this.makeModel]
         });
     }
 
     async findById(equipmentId: number) {
         const equipment = await this.equipmentModel.findOne({
             where: { equipmentId },
-            include: [this.equipmentTypeModel, this.equipmentUnitModel]
+            include: [this.equipmentTypeModel, this.equipmentUnitModel, this.makeModel]
         });
 
         if (!equipment) {
