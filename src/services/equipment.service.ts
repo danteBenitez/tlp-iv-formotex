@@ -6,6 +6,7 @@ import EquipmentType from "../models/equipment-type.model";
 import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
 import Make from "../models/make.model";
+import PaginatedResponse from "../responses/paginated-response";
 import { CreateEquipmentData, UpdateEquipmentData } from "../validations/equipment.schema";
 import { EquipmentTypeNotFoundError } from "./equipment-types.service";
 import { MakeNotFoundError } from "./make.service";
@@ -25,6 +26,7 @@ export class EquipmentService {
         query?: string,
         make?: string,
         type?: string,
+        page?: string
     }) {
         const options: WhereOptions<IEquipment> = {};
 
@@ -50,9 +52,11 @@ export class EquipmentService {
                 [Op.like]: `%${params.type}%`
             };
         }
-
-        return this.equipmentModel.findAll({
+        const page = parseInt(params?.page ?? "1");
+        const result = await this.equipmentModel.findAndCountAll({
             where: options,
+            limit: PaginatedResponse.PER_PAGE_DEFAULT,
+            offset: page === 1 ? 0 : (page - 1) * PaginatedResponse.PER_PAGE_DEFAULT,
             include: [{
                 model: this.equipmentTypeModel,
                 where: typeOptions
@@ -61,6 +65,8 @@ export class EquipmentService {
                 where: makeOptions
             }],
         });
+
+        return PaginatedResponse.fromData(result.rows, result.count, parseInt(params?.page ?? "1")).toJson();
     }
 
     async findById(equipmentId: number) {
