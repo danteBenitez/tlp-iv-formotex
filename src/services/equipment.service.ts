@@ -1,8 +1,10 @@
 import EquipmentType from "../models/equipment-type.model";
 import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
+import Make from "../models/make.model";
 import { CreateEquipmentData, UpdateEquipmentData } from "../validations/equipment.schema";
 import { EquipmentTypeNotFoundError } from "./equipment-types.service";
+import { MakeNotFoundError } from "./make.service";
 
 export class EquipmentNotFoundError extends Error { }
 
@@ -10,6 +12,7 @@ export class EquipmentService {
 
     constructor(
         private equipmentModel: typeof Equipment,
+        private makeModel: typeof Make,
         private equipmentTypeModel: typeof EquipmentType,
         private equipmentUnitModel: typeof EquipmentUnit
     ) { }
@@ -41,6 +44,12 @@ export class EquipmentService {
             throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
         }
 
+        const make = await this.makeModel.findByPk(equipmentData.makeId);
+
+        if (!make) {
+            throw new MakeNotFoundError("Marca sin registrar");
+        }
+
         const equipment = await this.equipmentModel.create(equipmentData);
 
         if (equipmentData.units) {
@@ -64,6 +73,16 @@ export class EquipmentService {
                 throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
             }
             existing.$set("type", type);
+        }
+
+        if (equipmentData.makeId) {
+            const make = await this.makeModel.findByPk(equipmentData.makeId);
+
+            if (!make) {
+                throw new MakeNotFoundError("Marca no registrada");
+            }
+
+            existing.$set("make", make);
         }
 
         await existing.update(equipmentData);
@@ -99,4 +118,4 @@ export class EquipmentService {
     }
 }
 
-export const equipmentService = new EquipmentService(Equipment, EquipmentType, EquipmentUnit);
+export const equipmentService = new EquipmentService(Equipment, Make, EquipmentType, EquipmentUnit);

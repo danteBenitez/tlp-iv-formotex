@@ -10,10 +10,10 @@ export const createEquipmentSchema = z.object({
     description: z.string().min(1, {
         message: "La descripción del equipamiento es requerida"
     }),
-    make: z.string().min(1, {
-        message: "La marca del equipo es requerida"
-    }).max(255, {
-        message: "La marca del equipo no puede tener más de 255 caracteres"
+    makeId: z.number({
+        message: "El ID de marca es requerido"
+    }).int({
+        message: "El ID de marca debe ser un entero"
     }),
     typeId: z.number({
         message: "El ID de tipo es un entero"

@@ -1,4 +1,5 @@
 import { IEquipmentType } from "./equipment-type.interface";
+import { IMake } from "./make.interface";
 
 export interface IEquipment {
     equipmentId: string,
@@ -6,5 +7,6 @@ export interface IEquipment {
     description: string,
     type?: IEquipmentType,
     typeId: number,
-    make: string,
+    make?: IMake,
+    makeId: number
 }

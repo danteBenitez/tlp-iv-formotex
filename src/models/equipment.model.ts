@@ -3,6 +3,7 @@ import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, Model,
 import { IEquipment } from "../interfaces/equipment.interface.js";
 import EquipmentType from "./equipment-type.model.js";
 import EquipmentUnit from "./equipment-unit.model.js";
+import Make from "./make.model.js";
 
 interface EquipmentCreationAttributes extends Optional<IEquipment, "equipmentId"> { }
 
@@ -31,8 +32,11 @@ export default class Equipment extends Model<IEquipment, EquipmentCreationAttrib
     @ForeignKey(() => EquipmentType)
     declare typeId: number
 
-    @Column
-    declare make: string
+    @ForeignKey(() => Make)
+    declare makeId: number
+
+    @BelongsTo(() => Make)
+    declare make?: Make
 
     @HasMany(() => EquipmentUnit)
     declare equipmentUnits: EquipmentUnit[]
