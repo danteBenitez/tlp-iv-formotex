@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ConflictingOrganizationError, OrganizationNotFoundError, OrganizationService } from "../services/organization.service";
+import { ConflictingOrganizationError, OrganizationHasEquipmentError, OrganizationNotFoundError, OrganizationService } from "../services/organization.service";
 import { validateRequest, validateRequestBody } from "../utils/validate-schema";
 import { createOrganizationSchema, organizationIdSchema, updateOrganizationSchema } from "../validations/organization.schema";
 
@@ -116,9 +116,9 @@ export class OrganizationController {
 
         } catch (err) {
             if (
-                err instanceof ConflictingOrganizationError
+                err instanceof OrganizationHasEquipmentError
             ) {
-                return res.status(400).json({
+                return res.status(409).json({
                     message: err.message
                 });
             }
