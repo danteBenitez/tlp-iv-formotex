@@ -1,3 +1,7 @@
+import { Op, WhereOptions } from "sequelize";
+import { IEquipmentType } from "../interfaces/equipment-type.interface";
+import { IEquipment } from "../interfaces/equipment.interface";
+import { IMake } from "../interfaces/make.interface";
 import EquipmentType from "../models/equipment-type.model";
 import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
@@ -17,9 +21,45 @@ export class EquipmentService {
         private equipmentUnitModel: typeof EquipmentUnit
     ) { }
 
-    async findAll() {
+    async findAll(params?: {
+        query?: string,
+        make?: string,
+        type?: string,
+    }) {
+        const options: WhereOptions<IEquipment> = {};
+
+        if (params?.query) {
+            options[Op.or as keyof WhereOptions] = {
+                name: { [Op.like]: `%${params?.query}%` },
+                description: { [Op.like]: `%${params?.query}%` }
+            };
+        }
+
+        const makeOptions: WhereOptions<IMake> = {};
+
+        if (params?.make) {
+            makeOptions["name"] = {
+                [Op.like]: `%${params.make}%`
+            };
+        }
+
+        const typeOptions: WhereOptions<IEquipmentType> = {};
+
+        if (params?.type) {
+            typeOptions["name"] = {
+                [Op.like]: `%${params.type}%`
+            };
+        }
+
         return this.equipmentModel.findAll({
-            include: [this.equipmentTypeModel, this.makeModel]
+            where: options,
+            include: [{
+                model: this.equipmentTypeModel,
+                where: typeOptions
+            }, {
+                model: this.makeModel,
+                where: makeOptions
+            }],
         });
     }
 

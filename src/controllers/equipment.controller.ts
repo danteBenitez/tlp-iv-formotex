@@ -12,9 +12,9 @@ export class EquipmentController {
         private equipmentService: EquipmentService
     ) { }
 
-    async findAll(_: Request, res: Response) {
+    async findAll(req: Request, res: Response) {
         try {
-            const equipment = await this.equipmentService.findAll();
+            const equipment = await this.equipmentService.findAll(req.query);
 
             return res.status(200).json(equipment);
 
