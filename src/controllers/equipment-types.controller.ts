@@ -61,7 +61,7 @@ export class EquipmentTypeController {
 
         } catch (err) {
             if (err instanceof ConflictingEquipmentTypeError) {
-                return res.status(400).json({
+                return res.status(409).json({
                     message: err.message
                 });
             }
@@ -86,7 +86,7 @@ export class EquipmentTypeController {
 
         } catch (err) {
             if (err instanceof ConflictingEquipmentTypeError) {
-                return res.status(400).json({
+                return res.status(4009).json({
                     message: err.message
                 });
             }
