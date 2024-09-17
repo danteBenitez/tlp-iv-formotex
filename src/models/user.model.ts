@@ -30,6 +30,11 @@ export default class User extends Model<IUser, UserCreationAttributes> {
     @Column
     declare email: string;
 
-    @BelongsToMany(() => Role, () => UserRole)
+    @BelongsToMany(() => Role, {
+        through: {
+            model: () => UserRole,
+            unique: false
+        }
+    })
     declare roles: Role[]
 }

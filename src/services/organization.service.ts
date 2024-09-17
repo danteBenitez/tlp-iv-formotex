@@ -1,4 +1,5 @@
 import { Op } from "sequelize";
+import EquipmentUnit from "../models/equipment-unit.model";
 import Organization from "../models/organization.model";
 import { CreateOrganizationData, UpdateOrganizationData } from "../validations/organization.schema";
 
@@ -9,6 +10,7 @@ export class OrganizationService {
 
     constructor(
         private organizationModel: typeof Organization,
+        private equipmentUnitModel: typeof EquipmentUnit
     ) { }
 
     async findAll() {
@@ -67,19 +69,28 @@ export class OrganizationService {
     }
 
     async delete(organizationId: number) {
+        const unitsWithOrg = await this.equipmentUnitModel.findOne({
+            where: { organizationId }
+        });
+
+        if (unitsWithOrg) {
+            throw new OrganizationHasEquipmentError("La organización tiene unidades de equipamiento asociadas. No se puede eliminar");
+        }
+
         const affected = await this.organizationModel.destroy({
             where: {
                 organizationId
             },
-            cascade: true
         });
 
         if (affected === 0) {
             throw new OrganizationNotFoundError("Organización no encontrada");
         }
 
+
+
         return affected;
     }
 }
 
-export const organizationService = new OrganizationService(Organization);
+export const organizationService = new OrganizationService(Organization, EquipmentUnit);

@@ -1,0 +1,110 @@
+[
+  {
+    "type": "Laptop",
+    "marca": "Dell",
+    "modelo": "Inspiron 15 5000",
+    "characteristics": "Procesador Intel Core i5, 8GB RAM, 1TB HDD"
+  },
+  {
+    "type": "Laptop",
+    "marca": "HP",
+    "modelo": "Envy x360",
+    "characteristics": "Procesador AMD Ryzen 7, 16GB RAM, 512GB SSD"
+  },
+  {
+    "type": "Impresora",
+    "marca": "Epson",
+    "modelo": "WorkForce Pro WF-3720",
+    "characteristics": "Impresión a color, Wi-Fi, 2 papeleras"
+  },
+  {
+    "type": "Escáner",
+    "marca": "Canon",
+    "modelo": "imageFormula DR-C240",
+    "characteristics": "Escaneo a color, ADF, 600 dpi"
+  },
+  {
+    "type": "Disco duro",
+    "marca": "Western Digital",
+    "modelo": "Caviar Blue 1TB",
+    "characteristics": "3.5, SATA III, 64MB cache"
+  },
+  {
+    "type": "Tarjeta gráfica",
+    "marca": "NVIDIA",
+    "modelo": "GeForce GTX 1660",
+    "characteristics": "6GB GDDR6, 1408 núcleos, 1784 MHz"
+  },
+  {
+    "type": "Tableta",
+    "marca": "Apple",
+    "modelo": "iPad Pro",
+    "characteristics": "Pantalla de 11, Procesador A12X, 6GB RAM, 512GB SSD"
+  },
+  {
+    "type": "Disco SSD",
+    "marca": "Samsung",
+    "modelo": "970 EVO Plus",
+    "characteristics": "1TB, M.2, NVMe"
+  },
+  {
+    "type": "Computadora de escritorio",
+    "marca": "HP",
+    "modelo": "Pavilion Gaming Desktop",
+    "characteristics": "Procesador AMD Ryzen 9, 16GB RAM, 1TB HDD"
+  },
+  {
+    "type": "Laptop gaming",
+    "marca": "MSI",
+    "modelo": "GS65 Stealth",
+    "characteristics": "Procesador Intel Core i9, 32GB RAM, 1TB SSD"
+  },
+  {
+    "type": "Laptop",
+    "marca": "Asus",
+    "modelo": "ZenBook 14",
+    "characteristics": "Procesador AMD Ryzen 5, 8GB RAM, 256GB SSD"
+  },
+  {
+    "type": "Impresora",
+    "marca": "HP",
+    "modelo": "LaserJet Pro M15w",
+    "characteristics": "Impresión en blanco y negro, 30 ppm, 250 hojas"
+  },
+  {
+    "type": "Disco duro externo",
+    "marca": "Western Digital",
+    "modelo": "My Passport",
+    "characteristics": "2TB, USB 3.0, 256-bit AES"
+  },
+  {
+    "type": "Tarjeta gráfica",
+    "marca": "NVIDIA",
+    "modelo": "Quadro RTX 8000",
+    "characteristics": "48GB GDDR6, 4608 núcleos, 1545 MHz"
+  },
+  {
+    "type": "Disco SSD externo",
+    "marca": "Samsung",
+    "modelo": "T5",
+    "characteristics": "1TB, USB 3.1, 256-bit AES"
+  },
+  {
+    "type": "Computadora de escritorio",
+    "marca": "Dell",
+    "modelo": "Inspiron 3670",
+    "characteristics": "Procesador Intel Core i5, 8GB RAM, 1TB HDD"
+  },
+  {
+    "type": "Laptop gaming",
+    "marca": "Razer",
+    "modelo": "Blade 15",
+    "characteristics": "Procesador Intel Core i7, 16GB RAM, 512GB SSD"
+  },
+  {
+    "type": "Impresora",
+    "marca": "Brother",
+    "modelo": "HL-L2320D",
+    "characteristics": "Impresión en blanco y negro, 30 ppm, 250 hojas"
+  }
+]

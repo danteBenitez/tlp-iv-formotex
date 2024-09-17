@@ -19,7 +19,7 @@ export class EquipmentTypeService {
     }
 
     async findById(equipmentId: number) {
-        const type = this.equipmentTypeModel.findByPk(equipmentId);
+        const type = await this.equipmentTypeModel.findByPk(equipmentId);
         if (!type) {
             throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
         }

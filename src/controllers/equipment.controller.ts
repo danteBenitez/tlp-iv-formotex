@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { EquipmentTypeNotFoundError } from "../services/equipment-types.service";
 import { EquipmentNotFoundError, EquipmentService } from "../services/equipment.service";
+import { MakeNotFoundError } from "../services/make.service";
 import { OrganizationNotFoundError } from "../services/organization.service";
 import { validateRequest, validateRequestBody } from "../utils/validate-schema";
 import { createEquipmentSchema, equipmentIdSchema, updateEquipmentSchema } from "../validations/equipment.schema";
@@ -11,9 +12,9 @@ export class EquipmentController {
         private equipmentService: EquipmentService
     ) { }
 
-    async findAll(_: Request, res: Response) {
+    async findAll(req: Request, res: Response) {
         try {
-            const equipment = await this.equipmentService.findAll();
+            const equipment = await this.equipmentService.findAll(req.query);
 
             return res.status(200).json(equipment);
 
@@ -65,6 +66,7 @@ export class EquipmentController {
             if (
                 err instanceof OrganizationNotFoundError
                 || err instanceof EquipmentTypeNotFoundError
+                || err instanceof MakeNotFoundError
             ) {
                 return res.status(404).json({
                     message: err.message
@@ -94,6 +96,7 @@ export class EquipmentController {
                 err instanceof EquipmentNotFoundError
                 || err instanceof OrganizationNotFoundError
                 || err instanceof EquipmentTypeNotFoundError
+                || err instanceof MakeNotFoundError
             ) {
                 return res.status(404).json({
                     message: err.message

@@ -1,8 +1,15 @@
+import { Op, WhereOptions } from "sequelize";
+import { IEquipmentType } from "../interfaces/equipment-type.interface";
+import { IEquipment } from "../interfaces/equipment.interface";
+import { IMake } from "../interfaces/make.interface";
 import EquipmentType from "../models/equipment-type.model";
 import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
+import Make from "../models/make.model";
+import PaginatedResponse from "../responses/paginated-response";
 import { CreateEquipmentData, UpdateEquipmentData } from "../validations/equipment.schema";
 import { EquipmentTypeNotFoundError } from "./equipment-types.service";
+import { MakeNotFoundError } from "./make.service";
 
 export class EquipmentNotFoundError extends Error { }
 
@@ -10,20 +17,62 @@ export class EquipmentService {
 
     constructor(
         private equipmentModel: typeof Equipment,
+        private makeModel: typeof Make,
         private equipmentTypeModel: typeof EquipmentType,
         private equipmentUnitModel: typeof EquipmentUnit
     ) { }
 
-    async findAll() {
-        return this.equipmentModel.findAll({
-            include: [this.equipmentTypeModel]
+    async findAll(params?: {
+        query?: string,
+        make?: string,
+        type?: string,
+        page?: string
+    }) {
+        const options: WhereOptions<IEquipment> = {};
+
+        if (params?.query) {
+            options[Op.or as keyof WhereOptions] = {
+                name: { [Op.like]: `%${params?.query}%` },
+                description: { [Op.like]: `%${params?.query}%` }
+            };
+        }
+
+        const makeOptions: WhereOptions<IMake> = {};
+
+        if (params?.make) {
+            makeOptions["name"] = {
+                [Op.like]: `%${params.make}%`
+            };
+        }
+
+        const typeOptions: WhereOptions<IEquipmentType> = {};
+
+        if (params?.type) {
+            typeOptions["name"] = {
+                [Op.like]: `%${params.type}%`
+            };
+        }
+        const page = parseInt(params?.page ?? "1");
+        const result = await this.equipmentModel.findAndCountAll({
+            where: options,
+            limit: PaginatedResponse.PER_PAGE_DEFAULT,
+            offset: page === 1 ? 0 : (page - 1) * PaginatedResponse.PER_PAGE_DEFAULT,
+            include: [{
+                model: this.equipmentTypeModel,
+                where: typeOptions
+            }, {
+                model: this.makeModel,
+                where: makeOptions
+            }],
         });
+
+        return PaginatedResponse.fromData(result.rows, result.count, parseInt(params?.page ?? "1")).toJson();
     }
 
     async findById(equipmentId: number) {
         const equipment = await this.equipmentModel.findOne({
             where: { equipmentId },
-            include: [this.equipmentTypeModel, this.equipmentUnitModel]
+            include: [this.equipmentTypeModel, this.equipmentUnitModel, this.makeModel]
         });
 
         if (!equipment) {
@@ -39,6 +88,12 @@ export class EquipmentService {
 
         if (!type) {
             throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
+        }
+
+        const make = await this.makeModel.findByPk(equipmentData.makeId);
+
+        if (!make) {
+            throw new MakeNotFoundError("Marca sin registrar");
         }
 
         const equipment = await this.equipmentModel.create(equipmentData);
@@ -64,6 +119,16 @@ export class EquipmentService {
                 throw new EquipmentTypeNotFoundError("Tipo de equipamiento no encontrado");
             }
             existing.$set("type", type);
+        }
+
+        if (equipmentData.makeId) {
+            const make = await this.makeModel.findByPk(equipmentData.makeId);
+
+            if (!make) {
+                throw new MakeNotFoundError("Marca no registrada");
+            }
+
+            existing.$set("make", make);
         }
 
         await existing.update(equipmentData);
@@ -99,4 +164,4 @@ export class EquipmentService {
     }
 }
 
-export const equipmentService = new EquipmentService(Equipment, EquipmentType, EquipmentUnit);
+export const equipmentService = new EquipmentService(Equipment, Make, EquipmentType, EquipmentUnit);

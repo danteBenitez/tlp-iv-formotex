@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ConflictingUserError, UserNotFoundError, UsersService } from "../services/user.service";
 import { validateRequest } from "../utils/validate-schema";
-import { updateUserByAdminSchema, updateUserSchema, userIdSchema } from "../validations/user.schema";
+import { createUserByAdminSchema, updateUserByAdminSchema, updateUserSchema, userIdSchema } from "../validations/user.schema";
 
 export class UserController {
     constructor(
@@ -57,6 +57,33 @@ export class UserController {
         return res.status(200).json({
             message: "Usuario eliminado exitosamente",
         });
+    }
+
+    async create(req: Request, res: Response) {
+        const { data, success, error } = await validateRequest(req, createUserByAdminSchema);
+        if (!success) {
+            return res.status(400).json(error);
+        }
+
+        try {
+            const { user } = await this.userService.create(data.body);
+
+
+            return res.status(201).json(user);
+
+        } catch (err) {
+            if (err instanceof ConflictingUserError) {
+                return res.status(409).json({
+                    message: err.message
+                });
+            }
+
+            console.error("Error al crear usuario: ", err);
+            res.status(500).json({
+                message: "Error interno del servidor"
+            });
+        }
+
     }
 
     async updateProfile(req: Request, res: Response) {

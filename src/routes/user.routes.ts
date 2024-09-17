@@ -13,7 +13,7 @@ router.get('/', (req, res) => controller.findAllUsers(req, res));
 
 router.get('/:userId', (req, res) => controller.findById(req, res));
 
-router.post('/', (req, res) => controller.findById(req, res));
+router.post('/', (req, res) => controller.create(req, res));
 
 router.patch('/:userId', (req, res) => controller.updateUserById(req, res));
 
