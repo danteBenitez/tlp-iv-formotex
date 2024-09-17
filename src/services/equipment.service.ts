@@ -145,7 +145,7 @@ export class EquipmentService {
 
         if (equipmentData.units) {
             await Promise.all(equipmentData.units.map(async unit => {
-                if (unit.deleted) {
+                if (unit.deleted && unit.equipmentUnitId) {
                     await this.equipmentUnitModel.destroy({
                         where: { equipmentUnitId: unit.equipmentUnitId }
                     })
