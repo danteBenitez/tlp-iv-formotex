@@ -3,7 +3,7 @@ import { EquipmentUnitNotFound, EquipmentUnitService } from "../services/equipme
 import { EquipmentNotFoundError } from "../services/equipment.service";
 import { OrganizationNotFoundError } from "../services/organization.service";
 import { validateRequest, validateRequestBody } from "../utils/validate-schema";
-import { createEquipmentUnitSchema, equipmentUnitIdSchema, updateEquipmentUnitSchema } from "../validations/equipment-unit.schema";
+import { createEquipmentUnitSchema, equipmentUnitIdSchema, registerDeliverySchema, registerMaintenanceForUnitSchema, updateEquipmentUnitSchema } from "../validations/equipment-unit.schema";
 
 export class EquipmentUnitController {
 
@@ -11,9 +11,9 @@ export class EquipmentUnitController {
         private equipmentUnitService: EquipmentUnitService
     ) { }
 
-    async findAll(_: Request, res: Response) {
+    async findAll(req: Request, res: Response) {
         try {
-            const types = await this.equipmentUnitService.findAll();
+            const types = await this.equipmentUnitService.findAll(req.query);
 
             return res.status(200).json(types);
 
@@ -57,7 +57,7 @@ export class EquipmentUnitController {
         }
 
         try {
-            const type = await this.equipmentUnitService.create(data);
+            const type = await this.equipmentUnitService.create(data, req.user);
 
             return res.status(200).json(type);
 
@@ -85,7 +85,7 @@ export class EquipmentUnitController {
         }
 
         try {
-            const type = await this.equipmentUnitService.update(data.params.equipmentUnitId, data.body);
+            const type = await this.equipmentUnitService.update(data.params.equipmentUnitId, data.body, req.user);
 
             return res.status(200).json(type);
 
@@ -125,6 +125,65 @@ export class EquipmentUnitController {
             }
 
             console.error("Error al eliminar un tipo de equipamiento: ", err);
+            res.status(500).json({
+                message: "Error interno del servidor"
+            });
+        }
+    }
+
+    async registerMaintenance(req: Request, res: Response) {
+        const { data, success, error } = await validateRequest(req, registerMaintenanceForUnitSchema);
+        if (!success) {
+            return res.status(400).json(error);
+        }
+
+        try {
+            const type = await this.equipmentUnitService.registerMaintenance(
+                data.params.equipmentUnitId,
+                req.user,
+                data.body.startDate,
+                data.body.endDate,
+                data.body.maintenanceLocation
+            );
+
+            return res.status(200).json(type);
+
+        } catch (err) {
+            if (err instanceof EquipmentUnitNotFound) {
+                return res.status(400).json({
+                    message: err.message
+                });
+            }
+
+            console.error("Error al register mantenimmiento para la unidad: ", err);
+            res.status(500).json({
+                message: "Error interno del servidor"
+            });
+        }
+    }
+
+    async registerDeliver(req: Request, res: Response) {
+        const { data, success, error } = await validateRequest(req, registerDeliverySchema);
+        if (!success) {
+            return res.status(400).json(error);
+        }
+
+        try {
+            const type = await this.equipmentUnitService.registerDelivery(
+                data.params.equipmentUnitId,
+                req.user,
+            );
+
+            return res.status(200).json(type);
+
+        } catch (err) {
+            if (err instanceof EquipmentUnitNotFound) {
+                return res.status(400).json({
+                    message: err.message
+                });
+            }
+
+            console.error("Error al registrar un envío para la unidad: ", err);
             res.status(500).json({
                 message: "Error interno del servidor"
             });

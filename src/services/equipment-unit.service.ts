@@ -1,8 +1,12 @@
+import { WhereOptions } from "sequelize";
+import { IEquipmentUnit } from "../interfaces/equipment-unit.interface";
 import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
 import Organization from "../models/organization.model";
+import User from "../models/user.model";
 import { CreateEquipmentUnitData, UpdateEquipmentUnitData } from "../validations/equipment-unit.schema";
 import { EquipmentNotFoundError } from "./equipment.service";
+import { movementService, MovementService } from "./movement.service";
 import { OrganizationNotFoundError } from "./organization.service";
 
 export class EquipmentUnitNotFound extends Error { }
@@ -12,14 +16,23 @@ export class EquipmentUnitService {
     constructor(
         private equipmentUnitModel: typeof EquipmentUnit,
         private equipmentModel: typeof Equipment,
-        private organizationModel: typeof Organization
+        private organizationModel: typeof Organization,
+        private movementService: MovementService
     ) { }
 
-    async findAll() {
+    async findAll(params?: { serialNumber?: number }) {
+        const findOptions: WhereOptions<IEquipmentUnit> = {};
+        if (params?.serialNumber) {
+            findOptions["serialNumber"] = params.serialNumber;
+        }
+
         return this.equipmentUnitModel.findAll({
-            include: {
+            include: [{
                 model: this.equipmentModel,
-            }
+            }, {
+                model: this.organizationModel
+            }],
+            where: findOptions
         });
     }
 
@@ -35,7 +48,7 @@ export class EquipmentUnitService {
         return equipment;
     }
 
-    async create(equipmentData: CreateEquipmentUnitData) {
+    async create(equipmentData: CreateEquipmentUnitData, user: User) {
         const organization = await this.organizationModel.findByPk(equipmentData.organizationId);
 
         if (!organization) {
@@ -50,10 +63,16 @@ export class EquipmentUnitService {
 
         const unit = await this.equipmentUnitModel.create(equipmentData);
 
+        // Registramos que se ingresó una nueva unidad
+        await this.movementService.createEntryMovement({
+            author: user,
+            unit
+        });
+
         return unit;
     }
 
-    async update(equipmentId: number, equipmentData: UpdateEquipmentUnitData) {
+    async update(equipmentId: number, equipmentData: UpdateEquipmentUnitData, user: User) {
         const existing = await this.equipmentUnitModel.findByPk(equipmentId);
 
         if (!existing) {
@@ -78,9 +97,69 @@ export class EquipmentUnitService {
             await existing.$set("equipment", equipment);
         }
 
+        if (equipmentData.location && existing.location !== equipmentData.location) {
+            // Registramos un transporte de la unidad
+            await this.movementService.createTransportMovement({
+                unit: existing,
+                author: user
+            }, existing.location, equipmentData.location);
+        }
+
         await existing.update(equipmentData);
 
         return existing;
+    }
+
+    async registerMaintenance(
+        equipmentUnitId: number,
+        user: User,
+        startedAt: Date,
+        endedAt: Date,
+        maintenanceLocation: string
+    ) {
+        const unit = await this.findById(equipmentUnitId);
+
+        const movement = await this.movementService.createMaintenanceMovement({
+            author: user,
+            unit: unit
+        }, startedAt, endedAt, maintenanceLocation);
+
+        return movement;
+    }
+
+    async registerTransport(
+        equipmentUnitId: number,
+        user: User,
+        originLocation: string,
+        targetLocation: string,
+    ) {
+        const unit = await this.findById(equipmentUnitId);
+
+        const movement = await this.movementService.createTransportMovement({
+            author: user,
+            unit
+        }, originLocation, targetLocation);
+
+        return movement;
+    }
+    async registerDelivery(
+        equipmentUnitId: number,
+        user: User,
+    ) {
+        const unit = await this.equipmentUnitModel.findByPk(equipmentUnitId, {
+            include: [this.organizationModel]
+        });
+
+        if (!unit) {
+            throw new EquipmentUnitNotFound("Unidad no encontrada");
+        }
+
+        const movement = await this.movementService.createDeliveryMovement({
+            author: user,
+            unit
+        }, unit.organization!)
+
+        return movement;
     }
 
     async delete(equipmentUnitId: number) {
@@ -96,4 +175,4 @@ export class EquipmentUnitService {
     }
 }
 
-export const equipmentUnitService = new EquipmentUnitService(EquipmentUnit, Equipment, Organization);
+export const equipmentUnitService = new EquipmentUnitService(EquipmentUnit, Equipment, Organization, movementService);

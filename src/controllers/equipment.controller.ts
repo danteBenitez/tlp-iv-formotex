@@ -58,7 +58,7 @@ export class EquipmentController {
         }
 
         try {
-            const equipment = await this.equipmentService.create(data);
+            const equipment = await this.equipmentService.create(data, req.user);
 
             return res.status(201).json(equipment);
 
@@ -87,7 +87,7 @@ export class EquipmentController {
         }
 
         try {
-            const equipment = await this.equipmentService.update(data.params.equipmentId, data.body);
+            const equipment = await this.equipmentService.update(data.params.equipmentId, data.body, req.user);
 
             return res.status(201).json(equipment);
 

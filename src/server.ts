@@ -8,6 +8,7 @@ import equipmentTypeRouter from "./routes/equipment-types.routes.js";
 import equipmentUnitRouter from "./routes/equipment-units.routes.js";
 import equipmentRouter from "./routes/equipment.routes.js";
 import makeRouter from "./routes/make.routes.js";
+import movementRouter from "./routes/movement.routes.js";
 import organizationRouter from "./routes/organization.routes.js";
 import userRouter from "./routes/user.routes.js";
 
@@ -38,6 +39,7 @@ export class Server {
         this.app.use('/auth', authRouter);
         this.app.use('/users', userRouter);
         this.app.use('/makes', makeRouter);
+        this.app.use('/movements', movementRouter);
         this.app.use('/equipment/types', equipmentTypeRouter);
         this.app.use('/equipment/units', equipmentUnitRouter);
         this.app.use('/equipment', equipmentRouter);

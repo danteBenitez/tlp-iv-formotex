@@ -33,10 +33,10 @@ export default class Movement extends Model<IMovement, MovementCreationAttribute
     declare unit: EquipmentUnit
 
     @ForeignKey(() => MovementType)
-    declare movementType: number
+    declare movementTypeId: number
 
     @BelongsTo(() => MovementType)
-    declare type: EquipmentUnit
+    declare type: MovementType
 
     @Column
     declare movementDetailId: number

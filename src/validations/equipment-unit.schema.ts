@@ -58,3 +58,21 @@ export const updateEquipmentUnitSchema = z.intersection(z.object({
 }), equipmentUnitIdSchema);
 
 export type UpdateEquipmentUnitData = z.infer<typeof updateEquipmentUnitSchema>["body"];
+
+export const registerMaintenanceForUnitSchema = z.object({
+    body: z.object({
+        maintenanceLocation: z.string().min(1, {
+            message: "La ubicación de mantenimiento es requerida"
+        }),
+        startDate: z.date({
+            coerce: true,
+            message: "La fecha de inicio del mantenimiento es requerida"
+        }),
+        endDate: z.date({
+            coerce: true,
+            message: "La fecha de fin del mantenimiento es requerida"
+        })
+    }),
+}).and(equipmentUnitIdSchema);
+
+export const registerDeliverySchema = z.object({}).and(equipmentUnitIdSchema);

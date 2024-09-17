@@ -15,6 +15,10 @@ router.get('/:equipmentUnitId', (req, res) => controller.findOne(req, res));
 
 router.post('/', (req, res) => controller.create(req, res));
 
+router.post('/:equipmentUnitId/deliver', (req, res) => controller.registerDeliver(req, res))
+
+router.post('/:equipmentUnitId/maintenance', (req, res) => controller.registerMaintenance(req, res))
+
 router.patch('/:equipmentUnitId', (req, res) => controller.update(req, res));
 
 router.delete('/:equipmentUnitId', (req, res) => controller.delete(req, res));

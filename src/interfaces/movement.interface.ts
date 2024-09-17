@@ -7,6 +7,6 @@ export interface IMovement {
     movementType?: IMovementType,
     movementTypeId: number,
     movementDetailId: number,
-    author: IUser,
+    author?: IUser,
     authorId: number
 }

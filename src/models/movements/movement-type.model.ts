@@ -1,17 +1,16 @@
 import { Optional } from "sequelize";
 import { AutoIncrement, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
 import { IMovementType } from "../../interfaces/movement-type.interface";
-import { IMovement } from "../../interfaces/movement.interface";
 
 interface MovementTyepCreationAttributes extends Optional<IMovementType, "movementTypeId"> { }
 
 @Table({
     timestamps: true,
     paranoid: true,
-    tableName: 'movement_type',
+    tableName: "movement_type",
     underscored: true
 })
-export default class MovementType extends Model<IMovement, MovementTyepCreationAttributes> {
+export default class MovementType extends Model<IMovementType, MovementTyepCreationAttributes> {
 
     @PrimaryKey
     @AutoIncrement

@@ -6,10 +6,12 @@ import EquipmentType from "../models/equipment-type.model";
 import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
 import Make from "../models/make.model";
+import User from "../models/user.model";
 import PaginatedResponse from "../responses/paginated-response";
 import { CreateEquipmentData, UpdateEquipmentData } from "../validations/equipment.schema";
 import { EquipmentTypeNotFoundError } from "./equipment-types.service";
 import { MakeNotFoundError } from "./make.service";
+import { movementService, MovementService } from "./movement.service";
 
 export class EquipmentNotFoundError extends Error { }
 
@@ -19,7 +21,8 @@ export class EquipmentService {
         private equipmentModel: typeof Equipment,
         private makeModel: typeof Make,
         private equipmentTypeModel: typeof EquipmentType,
-        private equipmentUnitModel: typeof EquipmentUnit
+        private equipmentUnitModel: typeof EquipmentUnit,
+        private movementService: MovementService
     ) { }
 
     async findAll(params?: {
@@ -82,7 +85,7 @@ export class EquipmentService {
         return equipment;
     }
 
-    async create(equipmentData: CreateEquipmentData) {
+    async create(equipmentData: CreateEquipmentData, user: User) {
 
         const type = await this.equipmentTypeModel.findByPk(equipmentData.typeId);
 
@@ -99,13 +102,20 @@ export class EquipmentService {
         const equipment = await this.equipmentModel.create(equipmentData);
 
         if (equipmentData.units) {
-            await this.equipmentUnitModel.bulkCreate(equipmentData.units.map(u => ({ ...u, equipmentId: equipment.equipmentId })));
+            const units = await this.equipmentUnitModel.bulkCreate(
+                equipmentData.units.map(u => {
+                    return { ...u, equipmentId: equipment.equipmentId }
+                }))
+            units.map(async u => await this.movementService.createEntryMovement({
+                author: user,
+                unit: u
+            }))
         }
 
         return equipment;
     }
 
-    async update(equipmentId: number, equipmentData: UpdateEquipmentData) {
+    async update(equipmentId: number, equipmentData: UpdateEquipmentData, user: User) {
         const existing = await this.equipmentModel.findByPk(equipmentId);
 
         if (!existing) {
@@ -141,10 +151,16 @@ export class EquipmentService {
                     })
                     return;
                 }
-                await this.equipmentUnitModel.upsert({
+                const [instance, found] = await this.equipmentUnitModel.upsert({
                     ...unit,
                     equipmentId: existing.equipmentId
                 });
+                if (!found) {
+                    await this.movementService.createEntryMovement({
+                        author: user,
+                        unit: instance
+                    });
+                }
             }));
         }
 
@@ -164,4 +180,4 @@ export class EquipmentService {
     }
 }
 
-export const equipmentService = new EquipmentService(Equipment, Make, EquipmentType, EquipmentUnit);
+export const equipmentService = new EquipmentService(Equipment, Make, EquipmentType, EquipmentUnit, movementService);
