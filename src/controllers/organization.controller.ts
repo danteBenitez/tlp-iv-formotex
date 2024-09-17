@@ -61,7 +61,7 @@ export class OrganizationController {
 
         } catch (err) {
             if (err instanceof ConflictingOrganizationError) {
-                return res.status(404).json({
+                return res.status(409).json({
                     message: err.message
                 });
             }
@@ -86,7 +86,7 @@ export class OrganizationController {
 
         } catch (err) {
             if (err instanceof ConflictingOrganizationError) {
-                return res.status(400).json({
+                return res.status(409).json({
                     message: err.message
                 });
             }
