@@ -38,6 +38,14 @@ export const userIdSchema = z.object({
     })
 });
 
+export const createUserByAdminSchema = z.object({
+    body: createUserSchema.extend({
+        roles: z.array(z.enum(ADMIN_ALLOWED_ROLES, {
+            message: "El rol debe ser uno de " + pluralFormatter.format(ADMIN_ALLOWED_ROLES)
+        })),
+    })
+});
+
 export const updateUserByAdminSchema = z.intersection(z.object({
     body: createUserSchema.extend({
         roles: z.array(z.enum(ADMIN_ALLOWED_ROLES, {
@@ -47,6 +55,7 @@ export const updateUserByAdminSchema = z.intersection(z.object({
 }), userIdSchema);
 
 export type CreateUserData = z.infer<typeof createUserSchema>;
+export type CreateUserByAdmin = z.infer<typeof createUserByAdminSchema>["body"];
 
 export const updateUserSchema = z.intersection(z.object({
     body: createUserSchema.partial(),
