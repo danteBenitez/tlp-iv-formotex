@@ -15,6 +15,8 @@ router.get('/:userId', (req, res) => controller.findById(req, res));
 
 router.post('/', (req, res) => controller.create(req, res));
 
+router.delete('/:userId', (req, res) => controller.deleteUserById(req, res));
+
 router.patch('/:userId', (req, res) => controller.updateUserById(req, res));
 
 export default router;
