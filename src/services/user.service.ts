@@ -140,7 +140,6 @@ export class UsersService {
         await found.update({
             email: userData.email,
             username: userData.username,
-            password: userData.password
         });
 
         // `updated` no contiene las asociaciones a #roleModel.

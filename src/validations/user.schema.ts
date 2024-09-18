@@ -47,7 +47,7 @@ export const createUserByAdminSchema = z.object({
 });
 
 export const updateUserByAdminSchema = z.intersection(z.object({
-    body: createUserSchema.extend({
+    body: createUserSchema.omit({ password: true }).extend({
         roles: z.array(z.enum(ADMIN_ALLOWED_ROLES, {
             message: "El rol debe ser uno de " + pluralFormatter.format(ADMIN_ALLOWED_ROLES)
         })),
