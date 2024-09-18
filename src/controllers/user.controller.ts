@@ -94,7 +94,7 @@ export class UserController {
         }
 
         try {
-            const updated = await this.userService.update(user.userId, data.body);
+            const updated = await this.userService.updateProfile(user.userId, data.body);
 
             const { password: _, ...withoutPassword } = updated.toJSON();
 
@@ -127,7 +127,7 @@ export class UserController {
         }
 
         try {
-            const updated = await this.userService.update(data.params.userId, data.body);
+            const updated = await this.userService.updateByAdmin(data.params.userId, data.body);
 
             const { password: _, ...withoutPassword } = updated.toJSON();
 

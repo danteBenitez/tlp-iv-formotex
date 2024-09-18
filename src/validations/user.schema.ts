@@ -57,9 +57,9 @@ export const updateUserByAdminSchema = z.intersection(z.object({
 export type CreateUserData = z.infer<typeof createUserSchema>;
 export type CreateUserByAdmin = z.infer<typeof createUserByAdminSchema>["body"];
 
-export const updateUserSchema = z.intersection(z.object({
+export const updateUserSchema = z.object({
     body: createUserSchema.partial(),
-}), userIdSchema);
+});
 
 export type UpdateUserData = z.infer<typeof updateUserSchema>["body"];
 

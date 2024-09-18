@@ -7,14 +7,14 @@ import { IUser } from "../interfaces/user.interface.js";
 import Role from "../models/role.model.js";
 import UserRole from "../models/user-roles.model.js";
 import User from "../models/user.model.js";
-import { CreateUserByAdmin, CreateUserData, SignInData, UpdateUserByAdmin } from "../validations/user.schema.js";
+import { CreateUserByAdmin, CreateUserData, SignInData, UpdateUserByAdmin, UpdateUserData } from "../validations/user.schema.js";
 import { EncryptionService, encryptionService } from "./encryption.service.js";
 
 export class ConflictingUserError extends Error { }
 export class UserNotFoundError extends Error { }
 export class InvalidSignInError extends Error { }
 export class InvalidRoleError extends Error { }
-
+export class InvalidDataError extends Error { }
 
 export class UsersService {
     constructor(
@@ -99,7 +99,28 @@ export class UsersService {
     /**
      * Actualiza un usuario con datos parciales.
      */
-    async update(userId: number, userData: UpdateUserByAdmin) {
+    async updateByAdmin(userId: number, userData: UpdateUserByAdmin) {
+        if ("password" in userData) {
+            throw new InvalidDataError("No puedes actualizar la contraseña de otro usuario");
+        }
+        return this.updateUser(userId, userData);
+    }
+
+    /**
+     * Actualiza un usuario con datos parciales.
+     * Este servicio permite que un usuario actualice su propio perfil, 
+     * incluyendo su contraseña.
+     * 
+     * **No** permite que cambie sus roles.
+     */
+    async updateProfile(userId: number, userData: UpdateUserData) {
+        if ("roles" in userData) {
+            throw new InvalidRoleError("No puedes asignarte un rol a ti mismo");
+        }
+        return this.updateUser(userId, userData);
+    }
+
+    private async updateUser(userId: number, userData: UpdateUserByAdmin | UpdateUserData) {
         const found = await this.userModel.findByPk(userId, {
             include: this.roleModel,
         });
@@ -122,7 +143,7 @@ export class UsersService {
         }
 
 
-        if (userData.roles) {
+        if ("roles" in userData && userData.roles) {
             if (userData.roles.length === 0) {
                 await this.userRoleModel.destroy({
                     force: true,
@@ -137,9 +158,15 @@ export class UsersService {
 
         }
 
+        let password = found.password;
+        if ("password" in userData && userData.password) {
+            password = await this.encryptionService.encrypt(userData.password);
+        }
+
         await found.update({
             email: userData.email,
             username: userData.username,
+            password: password
         });
 
         // `updated` no contiene las asociaciones a #roleModel.
