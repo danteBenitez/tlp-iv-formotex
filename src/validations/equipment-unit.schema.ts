@@ -72,6 +72,8 @@ export const registerMaintenanceForUnitSchema = z.object({
             coerce: true,
             message: "La fecha de fin del mantenimiento es requerida"
         })
+    }).refine(data => data.endDate > data.startDate, {
+        message: "La fecha de fin debe ser futura a la de inicio"
     }),
 }).and(equipmentUnitIdSchema);
 
