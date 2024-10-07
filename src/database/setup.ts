@@ -1,8 +1,8 @@
-import { sequelize } from "./connection.js";
+import { Database } from "./connection.js";
 import { seedDatabase } from "./seed/index.js";
 
 export async function setupDatabase() {
-    await seedDatabase();
+    Database.getInstance().checkConnection();
 
-    return sequelize.authenticate();
+    await seedDatabase();
 }

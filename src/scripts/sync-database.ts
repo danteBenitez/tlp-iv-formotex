@@ -1,5 +1,5 @@
 import { createInterface } from "readline/promises";
-import { sequelize } from "../database/connection.js";
+import { Database } from "../database/connection.js";
 import { setupDatabase } from "../database/setup.js";
 
 export async function syncDatabase() {
@@ -9,11 +9,12 @@ export async function syncDatabase() {
     });
 
     const answer = await rl.question(`¿Está seguro que desea forzar la sincronización de base de datos?\nEsta acción podría eliminar datos ya guardados. (Y/n)`);
+    const connection = Database.getInstance();
 
     try {
         if (answer == "Y") {
             console.log("Sincronizando base de datos...");
-            await sequelize.sync({
+            await connection.sync({
                 force: true
             })
             await setupDatabase();
@@ -24,7 +25,7 @@ export async function syncDatabase() {
         console.error("Hubo un error en la sincronización", err);
     } finally {
         rl.close();
-        sequelize.close();
+        connection.close();
     }
 }
 
