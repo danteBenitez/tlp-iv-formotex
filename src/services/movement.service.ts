@@ -17,6 +17,22 @@ type MovementInfo = {
 
 export class MovementTypeNotFound extends Error { }
 
+type MovementCreationParams = ({
+    type: typeof MOVEMENT_TYPES.ENTRY,
+}) | ({
+    type: typeof MOVEMENT_TYPES.TRANSPORT,
+    originLocation: string,
+    targetLocation: string
+}) | ({
+    type: typeof MOVEMENT_TYPES.DELIVERY,
+    organization: Organization
+}) | ({
+    type: typeof MOVEMENT_TYPES.MAINTENANCE,
+    startedAt: Date,
+    endedAt: Date,
+    maintenanceLocation: string
+})
+
 /**
  * Un servicio que permite el registro de movimientos dentro de los inventarios.
  * 
@@ -183,4 +199,30 @@ export class MovementService {
     }
 }
 
+
+export class MovementFactory {
+    constructor(
+        private movementService: MovementService
+    ) { }
+
+    async createMovement(movementInfo: MovementInfo, creationParams: MovementCreationParams): Promise<Movement> {
+        const type = creationParams.type;
+        switch (type) {
+            case MOVEMENT_TYPES.DELIVERY:
+                return this.movementService.createDeliveryMovement(movementInfo, creationParams.organization);
+            case MOVEMENT_TYPES.ENTRY:
+                return this.movementService.createEntryMovement(movementInfo);
+            case MOVEMENT_TYPES.MAINTENANCE:
+                const { startedAt, endedAt, maintenanceLocation } = creationParams;
+                return this.movementService.createMaintenanceMovement(movementInfo, startedAt, endedAt, maintenanceLocation);
+            case MOVEMENT_TYPES.TRANSPORT:
+                const { originLocation, targetLocation } = creationParams;
+                return this.movementService.createTransportMovement(movementInfo, originLocation, targetLocation);
+        }
+    }
+
+
+}
+
 export const movementService = new MovementService(Movement, MovementType, TransportMovement, MaintenanceMovement, DeliveryMovement, EntryMovement);
+export const movementFactory = new MovementFactory(movementService);

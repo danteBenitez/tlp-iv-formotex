@@ -1,4 +1,5 @@
 import { WhereOptions } from "sequelize";
+import { MOVEMENT_TYPES } from "../consts/movement-type";
 import { IEquipmentUnit } from "../interfaces/equipment-unit.interface";
 import EquipmentUnit from "../models/equipment-unit.model";
 import Equipment from "../models/equipment.model";
@@ -6,7 +7,7 @@ import Organization from "../models/organization.model";
 import User from "../models/user.model";
 import { CreateEquipmentUnitData, UpdateEquipmentUnitData } from "../validations/equipment-unit.schema";
 import { EquipmentNotFoundError } from "./equipment.service";
-import { movementService, MovementService } from "./movement.service";
+import { movementFactory, MovementFactory } from "./movement.service";
 import { OrganizationNotFoundError } from "./organization.service";
 
 export class EquipmentUnitNotFound extends Error { }
@@ -17,7 +18,7 @@ export class EquipmentUnitService {
         private equipmentUnitModel: typeof EquipmentUnit,
         private equipmentModel: typeof Equipment,
         private organizationModel: typeof Organization,
-        private movementService: MovementService
+        private movementFactory: MovementFactory
     ) { }
 
     async findAll(params?: { serialNumber?: number }) {
@@ -64,9 +65,11 @@ export class EquipmentUnitService {
         const unit = await this.equipmentUnitModel.create(equipmentData);
 
         // Registramos que se ingresó una nueva unidad
-        await this.movementService.createEntryMovement({
+        await this.movementFactory.createMovement({
             author: user,
             unit
+        }, {
+            type: MOVEMENT_TYPES.ENTRY
         });
 
         return unit;
@@ -99,10 +102,15 @@ export class EquipmentUnitService {
 
         if (equipmentData.location && existing.location !== equipmentData.location) {
             // Registramos un transporte de la unidad
-            await this.movementService.createTransportMovement({
+            const movementInfo = {
                 unit: existing,
                 author: user
-            }, existing.location, equipmentData.location);
+            };
+            await this.movementFactory.createMovement(movementInfo, {
+                type: MOVEMENT_TYPES.TRANSPORT,
+                originLocation: existing.location,
+                targetLocation: equipmentData.location
+            });
         }
 
         await existing.update(equipmentData);
@@ -118,11 +126,14 @@ export class EquipmentUnitService {
         maintenanceLocation: string
     ) {
         const unit = await this.findById(equipmentUnitId);
-
-        const movement = await this.movementService.createMaintenanceMovement({
+        const info = {
             author: user,
             unit: unit
-        }, startedAt, endedAt, maintenanceLocation);
+        };
+        const movement = await this.movementFactory.createMovement(info, {
+            type: MOVEMENT_TYPES.MAINTENANCE,
+            startedAt, endedAt, maintenanceLocation
+        });
 
         return movement;
     }
@@ -134,11 +145,14 @@ export class EquipmentUnitService {
         targetLocation: string,
     ) {
         const unit = await this.findById(equipmentUnitId);
-
-        const movement = await this.movementService.createTransportMovement({
+        const info = {
             author: user,
             unit
-        }, originLocation, targetLocation);
+        };
+        const movement = await this.movementFactory.createMovement(info, {
+            type: MOVEMENT_TYPES.TRANSPORT,
+            originLocation, targetLocation,
+        });
 
         return movement;
     }
@@ -154,10 +168,13 @@ export class EquipmentUnitService {
             throw new EquipmentUnitNotFound("Unidad no encontrada");
         }
 
-        const movement = await this.movementService.createDeliveryMovement({
+        const movement = await this.movementFactory.createMovement({
             author: user,
             unit
-        }, unit.organization!)
+        }, {
+            type: MOVEMENT_TYPES.DELIVERY,
+            organization: unit.organization!
+        })
 
         return movement;
     }
@@ -175,4 +192,4 @@ export class EquipmentUnitService {
     }
 }
 
-export const equipmentUnitService = new EquipmentUnitService(EquipmentUnit, Equipment, Organization, movementService);
+export const equipmentUnitService = new EquipmentUnitService(EquipmentUnit, Equipment, Organization, movementFactory);

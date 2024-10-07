@@ -1,4 +1,5 @@
 import { Op, WhereOptions } from "sequelize";
+import { MOVEMENT_TYPES } from "../consts/movement-type";
 import { IEquipmentType } from "../interfaces/equipment-type.interface";
 import { IEquipment } from "../interfaces/equipment.interface";
 import { IMake } from "../interfaces/make.interface";
@@ -11,7 +12,7 @@ import PaginatedResponse from "../responses/paginated-response";
 import { CreateEquipmentData, UpdateEquipmentData } from "../validations/equipment.schema";
 import { EquipmentTypeNotFoundError } from "./equipment-types.service";
 import { MakeNotFoundError } from "./make.service";
-import { movementService, MovementService } from "./movement.service";
+import { movementFactory, MovementFactory } from "./movement.service";
 
 export class EquipmentNotFoundError extends Error { }
 
@@ -22,7 +23,7 @@ export class EquipmentService {
         private makeModel: typeof Make,
         private equipmentTypeModel: typeof EquipmentType,
         private equipmentUnitModel: typeof EquipmentUnit,
-        private movementService: MovementService
+        private movementService: MovementFactory
     ) { }
 
     async findAll(params?: {
@@ -106,9 +107,11 @@ export class EquipmentService {
                 equipmentData.units.map(u => {
                     return { ...u, equipmentId: equipment.equipmentId }
                 }))
-            units.map(async u => await this.movementService.createEntryMovement({
+            units.map(async u => await this.movementService.createMovement({
                 author: user,
                 unit: u
+            }, {
+                type: MOVEMENT_TYPES.ENTRY,
             }))
         }
 
@@ -156,9 +159,11 @@ export class EquipmentService {
                     equipmentId: existing.equipmentId
                 });
                 if (!found) {
-                    await this.movementService.createEntryMovement({
+                    await this.movementService.createMovement({
                         author: user,
                         unit: instance
+                    }, {
+                        type: MOVEMENT_TYPES.ENTRY
                     });
                 }
             }));
@@ -180,4 +185,4 @@ export class EquipmentService {
     }
 }
 
-export const equipmentService = new EquipmentService(Equipment, Make, EquipmentType, EquipmentUnit, movementService);
+export const equipmentService = new EquipmentService(Equipment, Make, EquipmentType, EquipmentUnit, movementFactory);
